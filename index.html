@@ -3,11 +3,876 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Budapest Trip Planner</title>
+  <title>המסע הקסום לבודפשט 🇭🇺✨</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Rubik -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Rubik', 'sans-serif'],
+          },
+          colors: {
+            budapest: {
+              gold: '#F59E0B',
+              warmRed: '#E11D48',
+              nightBlue: '#0F172A',
+              cozyNavy: '#1E293B',
+              iceBlue: '#E0F2FE',
+              sparkleYellow: '#FDE047',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Falling Snow Animation */
+    .snowflake {
+      color: #fff;
+      font-size: 1.1rem;
+      position: fixed;
+      top: -10%;
+      z-index: 50;
+      user-select: none;
+      cursor: default;
+      animation-name: snowflakes-fall, snowflakes-shake;
+      animation-duration: 10s, 3s;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: infinite, infinite;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    @keyframes snowflakes-fall {
+      0% { top: -10%; }
+      100% { top: 100%; }
+    }
+    @keyframes snowflakes-shake {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(35px); }
+    }
+    .snowflake:nth-of-type(1) { left: 8%; animation-delay: 0s, 0s; }
+    .snowflake:nth-of-type(2) { left: 22%; animation-delay: 2s, 1s; }
+    .snowflake:nth-of-type(3) { left: 45%; animation-delay: 4s, 2s; }
+    .snowflake:nth-of-type(4) { left: 63%; animation-delay: 1s, 1s; }
+    .snowflake:nth-of-type(5) { left: 78%; animation-delay: 3s, 0.5s; }
+    .snowflake:nth-of-type(6) { left: 90%; animation-delay: 5s, 1.5s; }
+
+    /* Map container customization */
+    #budapestMap {
+      border-radius: 1.5rem;
+      z-index: 10;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #f59e0b;
+      border-radius: 0.75rem;
+      direction: rtl;
+      text-align: right;
+    }
+    /* Mobile-friendly improvements */
+    body {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .day-btn {
+      min-height: 70px;
+      padding: 0.75rem !important;
+    }
+    @media (max-width: 640px) {
+      .day-btn span:first-child { font-size: 1rem !important; }
+      .glass-card { padding: 1rem !important; }
+      a.block { padding: 1rem !important; }
+      h3 { font-size: 1.25rem !important; }
+      .text-xs { font-size: 0.8rem !important; }
+      .text-sm { font-size: 0.9rem !important; }
+    }
+  </style>
 </head>
-<body>
-  <h1>Loading...</h1>
-  <p>Please use the full file. Temporary placeholder.</p>
-  <script>location.href = 'budapest_trip_v2.html';</script>
+<body class="font-sans antialiased text-slate-100 overflow-x-hidden pb-12 selection:bg-rose-500 selection:text-white">
+
+  <!-- Falling Snow Effect -->
+  <div class="snowflake" aria-hidden="true">❄</div>
+  <div class="snowflake" aria-hidden="true">❅</div>
+  <div class="snowflake" aria-hidden="true">❆</div>
+  <div class="snowflake" aria-hidden="true">❄</div>
+  <div class="snowflake" aria-hidden="true">❅</div>
+  <div class="snowflake" aria-hidden="true">❆</div>
+
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 py-6 relative z-10">
+
+    <!-- HERO HEADER -->
+    <header class="text-center my-4 py-6 md:py-8 px-4 rounded-3xl glass-card relative overflow-hidden border border-amber-500/30">
+      <div class="absolute -top-12 -left-12 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-12 -right-12 w-40 h-40 bg-rose-500/20 rounded-full blur-3xl"></div>
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-xs md:text-sm font-medium mb-3">
+        <i class="fa-solid fa-sparkles"></i> טיול משפחתי חורפי | 5 לילות לבודפשט 🇭🇺
+      </div>
+      
+      <h1 class="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight text-white mb-3">
+        המסע הקסום לבודפשט! 🏰✨
+      </h1>
+      
+      <p class="text-sm md:text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
+        תוכנית טיול אינטראקטיבית לבנות ולמשפחה: שווקי חג מולד, ארמונות, שופינג ב-Arena Mall, מגלשות מים באקווה-וורלד וחוויות מופלאות!
+      </p>
+    </header>
+
+    <!-- SECTION 1: PARENTAL & OPEN TRAVEL TASKS -->
+    <section class="my-6">
+      <div class="glass-card rounded-3xl p-4 md:p-6 border border-sky-500/30">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg md:text-2xl font-bold text-sky-300 flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check"></i> מנהלות ומשימות פתוחות לטיול
+          </h2>
+          <span class="text-[11px] md:text-xs text-sky-200 bg-sky-900/60 px-2.5 py-1 rounded-full border border-sky-500/30">להורים 📌</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="parentTasks">
+          
+          <div class="task-item bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-sky-400 transition" onclick="toggleParentTask(1)">
+            <div class="flex items-center gap-3">
+              <div id="parent-check-1" class="w-6 h-6 rounded-lg border-2 border-slate-500 flex items-center justify-center text-sky-400 font-bold"></div>
+              <div>
+                <div class="font-bold text-xs sm:text-sm text-slate-100">ביטוח נסיעות 🛡️</div>
+                <div class="text-[10px] text-slate-400">הורחב לפארק מים וציוד</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-md">חובה</span>
+          </div>
+
+          <div class="task-item bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-sky-400 transition" onclick="toggleParentTask(2)">
+            <div class="flex items-center gap-3">
+              <div id="parent-check-2" class="w-6 h-6 rounded-lg border-2 border-slate-500 flex items-center justify-center text-sky-400 font-bold"></div>
+              <div>
+                <div class="font-bold text-xs sm:text-sm text-slate-100">נסיעה לשדה 🚕</div>
+                <div class="text-[10px] text-slate-400">תאום מונית/הסעה הלוך וחזור</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-md">חובה</span>
+          </div>
+
+          <div class="task-item bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-sky-400 transition" onclick="toggleParentTask(3)">
+            <div class="flex items-center gap-3">
+              <div id="parent-check-3" class="w-6 h-6 rounded-lg border-2 border-slate-500 flex items-center justify-center text-sky-400 font-bold"></div>
+              <div>
+                <div class="font-bold text-xs sm:text-sm text-slate-100">מסמכים וצ'ק אין 📲</div>
+                <div class="text-[10px] text-slate-400">דרכונים ובורדינג בטלפון</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-md">הכנה</span>
+          </div>
+
+          <div class="task-item bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-sky-400 transition" onclick="toggleParentTask(4)">
+            <div class="flex items-center gap-3">
+              <div id="parent-check-4" class="w-6 h-6 rounded-lg border-2 border-slate-500 flex items-center justify-center text-sky-400 font-bold"></div>
+              <div>
+                <div class="font-bold text-xs sm:text-sm text-slate-100">מטבע ואשראי 💳</div>
+                <div class="text-[10px] text-slate-400">פורינט הונגרי + כרטיס בינ"ל</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-md">כספים</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: TIMELINE PROCESS NAVIGATOR (NO HORIZONTAL SCROLL - RESPONSIVE GRID) -->
+    <section class="my-6">
+      <div class="text-center mb-4">
+        <h2 class="text-xl md:text-3xl font-black text-amber-300">
+          <i class="fa-solid fa-route"></i> תהליך הטיול לפי ימים
+        </h2>
+        <p class="text-xs md:text-sm text-slate-300">לחצו על כל יום כדי לצפות בתוכנית המפורטת ובקישורי המיקומים:</p>
+        <p class="text-xs text-amber-300 mt-1">🎄 17–22 בנובמבר · שווקי חג המולד פתוחים · קר · העדפה למקורה + אורות</p>
+      </div>
+
+      <!-- Responsive Grid Buttons (NO horizontal scroll) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3" id="timelineGrid">
+        <button onclick="switchDay(1)" id="btn-day-1" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-gradient-to-r from-amber-500 to-rose-500 text-white border-amber-400 shadow-lg">
+          <span class="text-base sm:text-lg">🎄 יום 1</span>
+          <span class="text-[11px] opacity-90 font-medium">נחיתה ושוק חג המולד</span>
+        </button>
+
+        <button onclick="switchDay(2)" id="btn-day-2" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span class="text-base sm:text-lg">🚢 יום 2</span>
+          <span class="text-[11px] opacity-90 font-medium">השוק המקורה ושייט</span>
+        </button>
+
+        <button onclick="switchDay(3)" id="btn-day-3" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span class="text-base sm:text-lg">🏰 יום 3</span>
+          <span class="text-[11px] opacity-90 font-medium">ארמון האגדות בבודה</span>
+        </button>
+
+        <button onclick="switchDay(4)" id="btn-day-4" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span class="text-base sm:text-lg">🌊 יום 4</span>
+          <span class="text-[11px] opacity-90 font-medium">מקורה + Aquaworld</span>
+        </button>
+
+        <button onclick="switchDay(5)" id="btn-day-5" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span class="text-base sm:text-lg">🛍️ יום 5</span>
+          <span class="text-[11px] opacity-90 font-medium">שופינג Arena Mall ומדע</span>
+        </button>
+
+        <button onclick="switchDay(6)" id="btn-day-6" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+          <span class="text-base sm:text-lg">✈️ יום 6</span>
+          <span class="text-[11px] opacity-90 font-medium">מזכרות וטיסה חזרה</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SUMMARY: New attractions by day -->
+    <section class="my-6">
+      <div class="glass-card rounded-3xl p-4 md:p-6 border border-sky-500/30">
+        <h2 class="text-lg md:text-xl font-bold text-sky-300 mb-3">📍 סיכום אטרקציות לפי ימים (מקורה/נגיש)</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-amber-300 font-bold">יום 1:</span> מלון BasiliQ + שוק הבזיליקה (ממש ליד) + Cat Café</div>
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-cyan-300 font-bold">יום 2:</span> מוזיאון האשליות + שוק וורוזמארטי + שייט</div>
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-purple-300 font-bold">יום 3:</span> בודה קצר או MiniPolis / Zoo Café</div>
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-emerald-300 font-bold">יום 4:</span> MiniPolis או IKONO (בוקר) + Aquaworld (ערב)</div>
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-pink-300 font-bold">יום 5:</span> Arena Mall + Palace of Wonders</div>
+          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-rose-300 font-bold">יום 6:</span> מזכרות קלות + יציאה</div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">כל המיקומים עם קישורי ניווט בתוך כל יום. לחצו על הימים למעלה לפרטים.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 3: INTERACTIVE MAP OF ALL LOCATIONS -->
+    <section class="my-6">
+      <div class="glass-card rounded-3xl p-4 md:p-6 border border-emerald-500/30">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg md:text-2xl font-bold text-emerald-300 flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot"></i> מפת נקודות הטיול בבודפשט
+            </h2>
+            <p class="text-xs text-slate-300">לחצו על הסימנים במפה כדי לראות את האתרים והימים המיועדים:</p>
+          </div>
+          <span class="text-xs bg-emerald-950/70 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30">OpenStreetMap</span>
+        </div>
+        
+        <!-- Map Canvas -->
+        <div id="budapestMap" class="w-full h-64 sm:h-80 md:h-96 shadow-2xl border border-slate-700"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: DAY PANELS (CONTAINING DAY DETAILS & SPECIFIC DAY GALLERY AT BOTTOM) -->
+    <section class="my-6">
+      <div id="dayContents">
+
+        <!-- DAY 1 CONTENT PANEL -->
+        <div id="day-panel-1" class="day-panel space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-amber-500/30">
+            <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-full text-xs font-bold">יום 1 • נחיתה + שוק הבזיליקה</span>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-white mt-2">ברוכים הבאים לבודפשט! 🎄✨</h3>
+            <p class="text-sm text-slate-200 mt-2 leading-relaxed">
+              הגעה ל<strong>מלון BasiliQ</strong> ממש ליד שוק חג המולד של הבזיליקה (Advent Bazilika – אחד היפים באירופה). פריקה, סיור קצר בשוק, ואופציה לבית קפה חתולים מקורה.
+            </p>
+
+            <div class="grid grid-cols-1 gap-3 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-amber-300 text-base">🎄 שוק הבזיליקה (Advent Bazilika)</h4>
+                <p class="text-sm text-slate-300 mt-1">ממש ליד המלון. מופע אורות תלת-ממד על חזית הבזיליקה (מ-17:30), עץ ענק, קורטוש טרי. מגניב בערב.</p>
+              </div>
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-amber-300 text-base">🐱 Cat Café Budapest</h4>
+                <p class="text-sm text-slate-300 mt-1">בית קפה עם חתולים מקורה, ~2 דק' מהמלון. מושלם אם קר בחוץ. (בדקו גילאים מראש)</p>
+              </div>
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-amber-300 text-base">🍰 קורטוש איכותי (Kurtissimo)</h4>
+                <p class="text-sm text-slate-300 mt-1">Király utca 6 – קורטוש טרי + גלידה. קרוב מאוד, לא רק דוכן בשוק.</p>
+              </div>
+            </div>
+
+            <!-- DAY 1 LOCATIONS -->
+            <div class="mt-5 pt-5 border-t border-slate-700/60 space-y-3">
+              <h4 class="text-sm font-bold text-amber-300 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 1:
+              </h4>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=BasiliQ+Hotel+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-amber-300">🏨 מלון BasiliQ</div>
+                <div class="text-sm text-slate-300 mt-1">Sas utca 10-12, ליד הבזיליקה.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Advent+Bazilika+Christmas+Market+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-amber-300">🎄 שוק הבזיליקה (Advent Bazilika)</div>
+                <div class="text-sm text-slate-300 mt-1">מופע אורות, אוכל ואווירת חג. ממש ליד המלון.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Cat+Cafe+Budapest+Revay+utca&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-amber-300">🐱 Cat Café Budapest</div>
+                <div class="text-sm text-slate-300 mt-1">Révay utca 3 – חתולים, קפה ועוגות. מקורה וקרוב מאוד.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Kurtissimo+Király+utca+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-amber-300">🍰 Kurtissimo – קורטוש + גלידה</div>
+                <div class="text-sm text-slate-300 mt-1">Király utca 6 – טרי ומגניב, לא רק דוכן.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+            </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- DAY 2 CONTENT PANEL -->
+        <div id="day-panel-2" class="day-panel hidden space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-blue-500/30">
+            <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 rounded-full text-xs font-bold">יום 2 • לב העיר הפשט, השוק המקורה ושייט נהר</span>
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">סובבים את הפשט ושייט אורות 🚢⭐</h3>
+            <p class="text-sm md:text-base text-slate-200 mt-2 leading-relaxed">
+              אפשרות מקורה מומלצת לילדות: <strong>מוזיאון האשליות</strong> (כיף ומתאים לגיל 6–8). אח"כ שוק וורוזמארטי (רכבת ילדים) ושייט ערב אם יש מצב רוח.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-cyan-300 text-sm md:text-base">✨ מוזיאון האשליות</h4>
+                <p class="text-xs text-slate-300 mt-1">מקורה לגמרי, ליד Deák. חדרים מעוותים, מראות, צילומים מצחיקים – מושלם לבנות בגיל הזה.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-cyan-300 text-sm md:text-base">🍓 השוק המקורה הענק</h4>
+                <p class="text-xs text-slate-300 mt-1">Nagy Vásárcsarnok - שוק ענק של שתי קומות לאוכל מקומי, לנגוש ומזכרות.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-cyan-300 text-sm md:text-base">🛥️ שייט ערב בדנובה</h4>
+                <p class="text-xs text-slate-300 mt-1">מראה בתי הפרלמנט המוארים בזהב מהמים – חוויה בלתי נשכחת לילדות ולכולם!</p>
+              </div>
+            </div>
+
+            <!-- DAY 2 LOCATIONS -->
+            <div class="mt-6 pt-6 border-t border-slate-700/60">
+              <h4 class="text-sm font-bold text-cyan-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 2:
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <a href="https://www.google.com/maps/dir/?api=1&destination=Museum+of+Illusions+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-cyan-400 transition">
+                  <div class="font-bold text-sm text-cyan-300">✨ מוזיאון האשליות</div>
+                  <div class="text-xs text-slate-300 mt-1">מקורה, ליד Deák. מושלם לבנות 6–8.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט לכאן →</div>
+                </a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=Zoo+Cafe+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-cyan-400 transition">
+                  <div class="font-bold text-sm text-cyan-300">🦜 Zoo Café</div>
+                  <div class="text-xs text-slate-300 mt-1">בית קפה עם בעלי חיים מגוונים (לא רק חתולים).</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט לכאן →</div>
+                </a>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=MiniPolis+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-cyan-400 transition">
+                  <div class="font-bold text-sm text-cyan-300">🏙️ MiniPolis (חלופה)</div>
+                  <div class="text-xs text-slate-300 mt-1">עיר מיניאטורית לילדים – אם קר מדי.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט לכאן →</div>
+                </a>
+              </div>
+            </div>
+                
+          </div>
+        </div>
+
+        <!-- DAY 3 CONTENT PANEL -->
+        <div id="day-panel-3" class="day-panel hidden space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-purple-500/30">
+            <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-400/30 rounded-full text-xs font-bold">יום 3 • בודה ההיסטורית, ארמון ותצפיות</span>
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">טירת בודה ומצודת הדייגים 🏰👑</h3>
+            <p class="text-sm md:text-base text-slate-200 mt-2 leading-relaxed">
+              טיפוס ברכבל הפוניקולר העתיק אל רובע הטירה, תצפיות פנורמיות עוצרות נשימה וביקור במצודת הדייגים שנראית כמו ארמון נסיכות.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-purple-300 text-sm md:text-base">🚡 רכבל הפוניקולר (Sikló)</h4>
+                <p class="text-xs text-slate-300 mt-1">נסיעה קצרה ומדליקה בקרונות עתיקים במעלה ההר אל שער הטירה.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-purple-300 text-sm md:text-base">🏰 מצודת הדייגים (Fisherman’s Bastion)</h4>
+                <p class="text-xs text-slate-300 mt-1">מגדלים לבנים, צריחים מוזהבים ותמונות מושלמות עם תצפית לכל העיר.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-purple-300 text-sm md:text-base">⛪ כנסיית מתיאש מגג הרעפים</h4>
+                <p class="text-xs text-slate-300 mt-1">כנסייה מרהיבה עם גג פסיפס צבעוני וסמטאות אבן קסומות סביבה.</p>
+              </div>
+            </div>
+
+            
+            <!-- DAY 3 LOCATIONS -->
+            <div class="mt-6 pt-6 border-t border-slate-700/60">
+              <h4 class="text-sm font-bold text-purple-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 3:
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <a href="https://www.google.com/maps/search/?api=1&destination=Budapest+Funicular+Siklo&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-purple-400 transition">
+                  <div class="font-bold text-sm text-purple-300">🚡 רכבל הפוניקולר</div>
+                  <div class="text-xs text-slate-300 mt-1">Sikló – עלייה לרובע הטירה.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&destination=Fisherman's+Bastion+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-purple-400 transition">
+                  <div class="font-bold text-sm text-purple-300">🏰 מצודת הדייגים</div>
+                  <div class="text-xs text-slate-300 mt-1">תצפיות פנורמיות ותמונות כמו נסיכות.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&destination=Matthias+Church+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-purple-400 transition">
+                  <div class="font-bold text-sm text-purple-300">⛪ כנסיית מתיאש</div>
+                  <div class="text-xs text-slate-300 mt-1">גג פסיפס צבעוני וסמטאות יפות.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="day-panel-4" class="day-panel hidden space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-emerald-500/30">
+            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold">יום 4 • מקורה בבוקר + Aquaworld בערב</span>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-white mt-2">MiniPolis / IKONO בבוקר, Aquaworld בערב ❄️</h3>
+            <p class="text-sm text-slate-200 mt-2 leading-relaxed">
+              17–22 בנובמבר – קר מאוד. בוקר וצהריים במקומות מקורים (MiniPolis או IKONO – מושלמים לילדות 6–8, מעט הליכה). בערב Aquaworld (מקורה).
+            </p>
+
+            <div class="grid grid-cols-1 gap-3 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-emerald-300 text-base">🏙️ MiniPolis Budapest (מומלץ לבוקר)</h4>
+                <p class="text-sm text-slate-300 mt-1">עיר מיניאטורית אינטראקטיבית לילדים – מקורה לגמרי, כיף גדול לבנות 6–8, מעט הליכה.</p>
+              </div>
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-emerald-300 text-base">📸 IKONO Budapest (חלופה)</h4>
+                <p class="text-sm text-slate-300 mt-1">מוזיאון אינסטגרם אינטראקטיבי מקורה – מושלם לתמונות ומשחק בלי לצאת לקור.</p>
+              </div>
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-emerald-300 text-base">🌊 Aquaworld Budapest (ערב)</h4>
+                <p class="text-sm text-slate-300 mt-1">פארק מים מקורה עם מגלשות ובריכות חמות. מושלם לסיום היום.</p>
+              </div>
+            </div>
+            
+            <!-- DAY 4 LOCATIONS -->
+            <div class="mt-5 pt-5 border-t border-slate-700/60 space-y-3">
+              <h4 class="text-sm font-bold text-emerald-300 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 4 (מקורה):
+              </h4>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=MiniPolis+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-emerald-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-emerald-300">🏙️ MiniPolis Budapest</div>
+                <div class="text-sm text-slate-300 mt-1">עיר מיניאטורית מקורה לילדים. נגיש בתחבורה ציבורית.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=IKONO+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-emerald-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-emerald-300">📸 IKONO Budapest</div>
+                <div class="text-sm text-slate-300 mt-1">מוזיאון אינטראקטיבי מקורה – תמונות ומשחק.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=47.6001,19.1132&travelmode=driving" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-emerald-400 active:scale-[0.98] transition">
+                <div class="font-bold text-base text-emerald-300">🌊 Aquaworld Budapest</div>
+                <div class="text-sm text-slate-300 mt-1">פארק מים מקורה. הגעה מומלצת במונית.</div>
+                <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div id="day-panel-5" class="day-panel hidden space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-pink-500/30">
+            <span class="px-3 py-1 bg-pink-500/20 text-pink-300 border border-pink-400/30 rounded-full text-xs font-bold">יום 5 • קניות ב-Arena Mall + מדע</span>
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">שופינג ב-Arena Mall ומוזיאון המדע 🛍️🧪</h3>
+            <p class="text-sm md:text-base text-slate-200 mt-2 leading-relaxed">
+              בוקר וחצי יום מוקדשים לקניות בקניון הענק **Arena Mall**, ולאחר מכן ביקור חווייתי במוזיאון המדע והאשליות **Palace of Wonders**!
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-pink-300 text-sm md:text-base">🛍️ Arena Mall Budapest</h4>
+                <p class="text-xs text-slate-300 mt-1">חצי יום קניות בקניון ממוזג ומקורה ענק (Primark, Zara, H&M, חנויות צעצועים ומתחם אוכל גדול).</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-pink-300 text-sm md:text-base">🧪 מרכז המדע פאלאפה</h4>
+                <p class="text-xs text-slate-300 mt-1">Palace of Wonders (Csodák Palotája) – מאות מוצגים אינטראקטיביים, בועות סבון וחדרי אשליה לבנות.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-pink-300 text-sm md:text-base">🍨 מדרחוב ואצי (Váci utca)</h4>
+                <p class="text-xs text-slate-300 mt-1">סיור ערב ברחוב הקניות המרכזי עם עצירה לקפה, שוקו חם ועוגות הונגריות.</p>
+              </div>
+            </div>
+
+            
+            <!-- DAY 5 LOCATIONS -->
+            <div class="mt-6 pt-6 border-t border-slate-700/60">
+              <h4 class="text-sm font-bold text-pink-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 5:
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <a href="https://www.google.com/maps/search/?api=1&destination=Arena+Mall+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-pink-400 transition">
+                  <div class="font-bold text-sm text-pink-300">🛍️ Arena Mall</div>
+                  <div class="text-xs text-slate-300 mt-1">קניון גדול: Primark, Zara, H&M, צעצועים ואוכל.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&destination=Palace+of+Wonders+Budapest&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-pink-400 transition">
+                  <div class="font-bold text-sm text-pink-300">🧪 Palace of Wonders</div>
+                  <div class="text-xs text-slate-300 mt-1">מוזיאון מדע אינטראקטיבי עם ניסויים ובועות.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&destination=Vaci+utca+Budapest&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-pink-400 transition">
+                  <div class="font-bold text-sm text-pink-300">🍨 רחוב ואצי</div>
+                  <div class="text-xs text-slate-300 mt-1">רחוב קניות מרכזי, קפה ושוקו חם.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="day-panel-6" class="day-panel hidden space-y-6">
+          <div class="glass-card rounded-3xl p-5 md:p-8 border border-amber-500/30">
+            <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-full text-xs font-bold">יום 6 • פרידה מתוקה מזכרונות</span>
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">מזכרות אחרונות וטיסה חזרה ✈️❤️</h3>
+            <p class="text-sm md:text-base text-slate-200 mt-2 leading-relaxed">
+              סיכום הטיול, אריזת המתנות, קורטוש חם לדרך ונסיעה לשדה התעופה של בודפשט.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-amber-300 text-sm md:text-base">🥐 ארוחת בוקר ומתוקים</h4>
+                <p class="text-xs text-slate-300 mt-1">קפה אחרון במרכז העיר, מאפה קיורטוש טרי וקניית מזכרות קטנות.</p>
+              </div>
+
+              <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <h4 class="font-bold text-amber-300 text-sm md:text-base">✈️ נסיעה לשדה התעופה</h4>
+                <p class="text-xs text-slate-300 mt-1">הגעה נינוחה לשדה התעופה וטיסה חזרה הביתה עם המון חוויות!</p>
+              </div>
+            </div>
+
+            
+            <!-- DAY 6 LOCATIONS -->
+            <div class="mt-6 pt-6 border-t border-slate-700/60">
+              <h4 class="text-sm font-bold text-amber-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot"></i> מיקומים ליום 6:
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a href="https://www.google.com/maps/search/?api=1&query=Budapest+city+center+souvenirs" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-amber-400 transition">
+                  <div class="font-bold text-sm text-amber-300">🥐 מזכרות ומתוקים</div>
+                  <div class="text-xs text-slate-300 mt-1">קורטוש אחרון וקניות קטנות במרכז העיר.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&destination=Budapest+Airport&travelmode=transit" target="_blank" class="block bg-slate-900/70 p-3 rounded-2xl border border-slate-700 hover:border-amber-400 transition">
+                  <div class="font-bold text-sm text-amber-300">✈️ שדה התעופה</div>
+                  <div class="text-xs text-slate-300 mt-1">נסיעה נוחה חזרה לשדה התעופה של בודפשט.</div>
+                  <div class="text-[10px] text-sky-300 mt-1">📍 ניווט מהמיקום הנוכחי →</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <!-- SECTION 5: GIRLS' CHALLENGE CHECKLIST (PLACED AT THE BOTTOM) -->
+    <section class="my-8">
+      <div class="glass-card rounded-3xl p-5 md:p-8 border border-rose-500/30">
+        
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-400/30 rounded-full text-xs font-bold">
+              <i class="fa-solid fa-trophy"></i> האתגר הגדול
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-white mt-1">
+              אתגר החוויות והמשימות לבנות! 👑✨
+            </h2>
+            <p class="text-xs md:text-sm text-slate-300">סמנו V על כל משימה שתשלימו בטיול כדי למלא את מד ההתקדמות:</p>
+          </div>
+          
+          <div class="w-full md:w-auto bg-slate-900/90 p-3 rounded-2xl border border-slate-700 flex flex-col items-center gap-1.5">
+            <div class="flex items-center justify-between w-full gap-4 text-xs font-bold">
+              <span class="text-slate-300">התקדמות האתגר:</span>
+              <span id="girlsCountText" class="text-amber-400 font-extrabold">0 / 7</span>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full sm:w-48 bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
+              <div id="girlsProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full w-0 transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Girls Tasks Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="girlsTasksGrid">
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(1)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-1" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">לאכול קיורטוש חם עם קינמון בשוק חג المולד 🥖</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded-md">יום 1</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(2)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-2" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">לראות את בתי הפרלמנט המוארים מספינת השייט 🚢</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-cyan-500/10 text-cyan-300 rounded-md">יום 2</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(3)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-3" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">לנסוע ברכבל הפוניקולר (Sikló) במעלה ההר 🚡</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-300 rounded-md">יום 3</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(4)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-4" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">להצטלם כמו נסיכות במצודת הדייגים הלבנה 🏰</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-300 rounded-md">יום 3</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(5)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-5" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">להתגלש במגלשות המים באקווה-וורלד 🌊</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded-md">יום 4</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(6)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-6" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">סיבוב קניות ומתנות בקניון Arena Mall 🛍️</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-pink-500/10 text-pink-300 rounded-md">יום 5</span>
+          </div>
+
+          <div class="girl-task bg-slate-900/70 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between cursor-pointer hover:border-amber-400/50 transition" onclick="toggleGirlTask(7)">
+            <div class="flex items-center gap-3">
+              <div id="girl-check-7" class="w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center text-amber-400 font-bold flex-shrink-0"></div>
+              <span class="font-bold text-xs sm:text-sm text-slate-200">לעשות ניסוי מדע מגניב במוזיאון הפלאים 🧪</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 bg-rose-500/10 text-rose-300 rounded-md">יום 5</span>
+          </div>
+
+        </div>
+
+        <!-- Success Toast -->
+        <div id="congratsBanner" class="hidden mt-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold text-center text-sm md:text-base animate-bounce shadow-xl">
+          🎉 כל הכבוד לבנות! השלמתן את כל החוויות בבודפשט! אתן אלופות הטיול! 🏆👑
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LIGHTBOX MODAL FOR FULLSCREEN IMAGE PREVIEW -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4" onclick="closeLightbox()">
+      <div class="relative max-w-4xl w-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+        <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white text-xl font-bold p-2 hover:text-amber-400">
+          <i class="fa-solid fa-xmark"></i> סגירה
+        </button>
+        <img id="lightboxImage" src="" alt="Fullscreen preview" class="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl border border-slate-700">
+        <p id="lightboxCaption" class="mt-3 text-sm md:text-base font-bold text-amber-300 text-center"></p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-800">
+      <p>נוצר באהבה עבור הטיול המשפחתי לבודפשט 🇭🇺✨</p>
+    </footer>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // --- 1. LEAFLET MAP INITIALIZATION ---
+    let map;
+    window.onload = function() {
+      // Map centered in Budapest
+      map = L.map('budapestMap').setView([47.4979, 19.0402], 12);
+
+      // CartoDB Positron tiles (works better in previews)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      // Locations Data
+      const locations = [
+        { lat: 47.5015, lng: 19.0530, title: "מלון BasiliQ (ימים 1-3)", info: "Sas utca 10-12, ליד הבזיליקה" },
+        { lat: 47.5010, lng: 19.0545, title: "Cat Café Budapest (יום 1)", info: "Révay utca 3 – חתולים וקפה" },
+        { lat: 47.5009, lng: 19.0539, title: "שוק הבזיליקה (יום 1)", info: "Advent Bazilika – מופע אורות" },
+        { lat: 47.5076, lng: 19.0464, title: "בתי הפרלמנט (יום 2)", info: "שייט ערב בדנובה" },
+        { lat: 47.4870, lng: 19.0584, title: "השוק המקורה הענק (יום 2)", info: "Nagy Vásárcsarnok" },
+        { lat: 47.5022, lng: 19.0348, title: "מצודת הדייגים וטירת בודה (יום 3)", info: "פוניקולר ותצפיות" },
+        { lat: 47.4975, lng: 19.0550, title: "MiniPolis Budapest (יום 4)", info: "עיר מיניאטורית מקורה לילדים" },
+        { lat: 47.5005, lng: 19.0535, title: "מוזיאון האשליות (יום 2)", info: "Bajcsy-Zsilinszky út 3 – מקורה וכיף לגיל 6-8" },
+        { lat: 47.4900, lng: 19.0600, title: "Zoo Café (יום 3/4)", info: "בית קפה עם בעלי חיים מגוונים" },
+        { lat: 47.4980, lng: 19.0600, title: "IKONO Budapest (יום 4)", info: "מוזיאון אינטראקטיבי מקורה" },
+        { lat: 47.6001, lng: 19.1132, title: "Aquaworld Budapest (יום 4)", info: "פארק מים מקורה" },
+        { lat: 47.4988, lng: 19.0833, title: "Arena Mall (יום 5)", info: "קניות ושופינג" },
+        { lat: 47.4623, lng: 19.0490, title: "Palace of Wonders (יום 5)", info: "מוזיאון מדע אינטראקטיבי" }
+      ];
+
+      const markers = locations.map(loc => {
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=walking`;
+        return L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(
+          `<b>${loc.title}</b><br>${loc.info}<br><a href="${mapsUrl}" target="_blank" style="color:#38bdf8;font-weight:bold;">📍 ניווט לכאן</a>`
+        );
+      });
+
+      // Fit map to show all markers
+      if (markers.length) {
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.15));
+      }
+
+      // Fix map size after load (common issue)
+      setTimeout(() => map.invalidateSize(), 100);
+
+      // Restore stored check states
+      restoreTaskStates();
+    };
+
+    // --- 2. SWITCH DAY PANELS LOGIC ---
+    function switchDay(dayNum) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.day-panel');
+      panels.forEach(p => p.classList.add('hidden'));
+
+      // Reset all timeline buttons
+      const buttons = document.querySelectorAll('.day-btn');
+      buttons.forEach(b => {
+        b.className = "day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700";
+      });
+
+      // Show selected panel
+      const targetPanel = document.getElementById(`day-panel-${dayNum}`);
+      if (targetPanel) {
+        targetPanel.classList.remove('hidden');
+      }
+
+      // Highlight active button
+      const activeBtn = document.getElementById(`btn-day-${dayNum}`);
+      if (activeBtn) {
+        activeBtn.className = "day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-gradient-to-r from-amber-500 to-rose-500 text-white border-amber-400 shadow-lg";
+      }
+    }
+
+    // --- 3. PARENT TASKS LOGIC ---
+    const parentState = { 1: false, 2: false, 3: false, 4: false };
+
+    function toggleParentTask(id) {
+      parentState[id] = !parentState[id];
+      updateParentUI(id);
+      localStorage.setItem('budapest_parent_tasks', JSON.stringify(parentState));
+    }
+
+    function updateParentUI(id) {
+      const el = document.getElementById(`parent-check-${id}`);
+      if (parentState[id]) {
+        el.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
+        el.classList.add('bg-sky-500', 'text-slate-950', 'border-sky-400');
+        el.classList.remove('border-slate-500');
+      } else {
+        el.innerHTML = '';
+        el.classList.remove('bg-sky-500', 'text-slate-950', 'border-sky-400');
+        el.classList.add('border-slate-500');
+      }
+    }
+
+    // --- 4. GIRLS CHALLENGE TASKS LOGIC ---
+    const girlsState = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false };
+    const totalGirlsTasks = 7;
+
+    function toggleGirlTask(id) {
+      girlsState[id] = !girlsState[id];
+      updateGirlsUI();
+      localStorage.setItem('budapest_girls_tasks', JSON.stringify(girlsState));
+    }
+
+    function updateGirlsUI() {
+      let count = 0;
+      for (let i = 1; i <= totalGirlsTasks; i++) {
+        const el = document.getElementById(`girl-check-${i}`);
+        if (girlsState[i]) {
+          count++;
+          el.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
+          el.classList.add('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
+          el.classList.remove('border-slate-600');
+        } else {
+          el.innerHTML = '';
+          el.classList.remove('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
+          el.classList.add('border-slate-600');
+        }
+      }
+
+      // Update text and progress bar
+      document.getElementById('girlsCountText').innerText = `${count} / ${totalGirlsTasks}`;
+      const pct = (count / totalGirlsTasks) * 100;
+      document.getElementById('girlsProgressBar').style.width = `${pct}%`;
+
+      // Show congrats if complete
+      const congrats = document.getElementById('congratsBanner');
+      if (count === totalGirlsTasks) {
+        congrats.classList.remove('hidden');
+      } else {
+        congrats.classList.add('hidden');
+      }
+    }
+
+    // --- RESTORE STATES FROM LOCALSTORAGE ---
+    function restoreTaskStates() {
+      try {
+        const savedParent = JSON.parse(localStorage.getItem('budapest_parent_tasks'));
+        if (savedParent) {
+          Object.assign(parentState, savedParent);
+          for (let id in parentState) updateParentUI(id);
+        }
+
+        const savedGirls = JSON.parse(localStorage.getItem('budapest_girls_tasks'));
+        if (savedGirls) {
+          Object.assign(girlsState, savedGirls);
+          updateGirlsUI();
+        }
+      } catch(e) {
+        console.log('LocalStorage not accessible', e);
+      }
+    }
+
+    // --- 5. LIGHTBOX FULLSCREEN PREVIEW ---
+    function openLightbox(imgUrl, caption) {
+      document.getElementById('lightboxImage').src = imgUrl;
+      document.getElementById('lightboxCaption').innerText = caption;
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
