@@ -336,17 +336,17 @@
               <h4 class="text-sm font-bold text-amber-300 mb-2 flex items-center gap-2">
                 <i class="fa-solid fa-location-dot"></i> מיקומים ליום 1:
               </h4>
-              <a href="https://www.google.com/maps/dir/?api=1&query=BasiliQ+Hotel+Budapest&layer=c&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+              <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=47.5015,19.0530" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
                 <div class="font-bold text-base text-amber-300">🏨 מלון BasiliQ</div>
                 <div class="text-sm text-slate-300 mt-1">Sas utca 10-12, ליד הבזיליקה.</div>
                 <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
               </a>
-              <a href="https://www.google.com/maps/dir/?api=1&query=Advent+Bazilika+Christmas+Market+Budapest&layer=c&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+              <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=47.5009,19.0539" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
                 <div class="font-bold text-base text-amber-300">🎄 שוק הבזיליקה (Advent Bazilika)</div>
                 <div class="text-sm text-slate-300 mt-1">מופע אורות, אוכל ואווירת חג. ממש ליד המלון.</div>
                 <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
               </a>
-              <a href="https://www.google.com/maps/dir/?api=1&query=Cat+Cafe+Budapest+Revay+utca&layer=c&travelmode=walking" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
+              <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=47.5010,19.0545" target="_blank" class="block bg-slate-900/70 p-4 rounded-2xl border border-slate-700 hover:border-amber-400 active:scale-[0.98] transition">
                 <div class="font-bold text-base text-amber-300">🐱 Cat Café Budapest</div>
                 <div class="text-sm text-slate-300 mt-1">Révay utca 3 – חתולים, קפה ועוגות. מקורה וקרוב מאוד.</div>
                 <div class="text-xs text-sky-300 mt-2 font-medium">📍 ניווט לכאן →</div>
@@ -726,7 +726,7 @@
     let map;
     window.onload = function() {
       // Map centered in Budapest
-      map = L.map('budapestMap').setView([47.4979, 19.0402], 12);
+      map = L.map('budapestMap').setView([47.500, 19.052], 15);
 
       // CartoDB Positron tiles (works better in previews)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -761,7 +761,7 @@
       // Fit map to show all markers
       if (markers.length) {
         const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.15));
+        map.fitBounds(group.getBounds().pad(0.05));
       }
 
       // Fix map size after load (common issue)
