@@ -265,17 +265,17 @@
 
         <button onclick="switchDay(4)" id="btn-day-4" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
           <span class="text-base sm:text-lg">🌊 יום 4</span>
-          <span class="text-[11px] opacity-90 font-medium">מקורה + Aquaworld</span>
+          <span class="text-[11px] opacity-90 font-medium">עיר בבוקר + Aquaworld ערב</span>
         </button>
 
         <button onclick="switchDay(5)" id="btn-day-5" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
           <span class="text-base sm:text-lg">🛍️ יום 5</span>
-          <span class="text-[11px] opacity-90 font-medium">שופינג Arena Mall ומדע</span>
+          <span class="text-[11px] opacity-90 font-medium">אזור Aquaworld</span>
         </button>
 
         <button onclick="switchDay(6)" id="btn-day-6" class="day-btn p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 transition-all duration-300 border bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
           <span class="text-base sm:text-lg">✈️ יום 6</span>
-          <span class="text-[11px] opacity-90 font-medium">מזכרות וטיסה חזרה</span>
+          <span class="text-[11px] opacity-90 font-medium">יציאה לשדה</span>
         </button>
       </div>
     </section>
@@ -294,9 +294,9 @@
             <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-amber-300 font-bold">יום 1:</span> מלון BasiliQ + שוק הבזיליקה (ממש ליד) + Cat Café <span class="badge-indoor">מקורה</span></div>
             <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-cyan-300 font-bold">יום 2:</span> מוזיאון האשליות <span class="badge-indoor">מקורה</span> + שוק וורוזמארטי + שייט</div>
             <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-purple-300 font-bold">יום 3:</span> בודה קצר או MiniPolis <span class="badge-indoor">מקורה</span> / Zoo Café</div>
-            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-emerald-300 font-bold">יום 4:</span> MiniPolis או IKONO (בוקר) + Aquaworld (ערב)</div>
-            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-pink-300 font-bold">יום 5:</span> Arena Mall + Palace of Wonders</div>
-            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-rose-300 font-bold">יום 6:</span> מזכרות קלות + יציאה</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-emerald-300 font-bold">יום 4:</span> בוקר בעיר + Aquaworld בערב (ונשארים שם)</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-pink-300 font-bold">יום 5:</span> באזור Aquaworld (מקורה / קרוב)</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-rose-300 font-bold">יום 6:</span> בוקר יציאה לשדה (טיסה 10:00)</div>
           </div>
           <p class="text-xs text-slate-400 mt-3">כל המיקומים עם קישורי ניווט בתוך כל יום. לחצו על הימים למעלה לפרטים.</p>
         </div>
@@ -498,9 +498,9 @@
         <div id="day-panel-4" class="day-panel hidden space-y-6">
           <div class="glass-card rounded-3xl p-5 md:p-8 border border-emerald-500/30">
             <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold">יום 4 • מקורה בבוקר + Aquaworld בערב</span>
-            <h3 class="text-2xl md:text-3xl font-extrabold text-white mt-2">MiniPolis / IKONO בבוקר, Aquaworld בערב ❄️</h3>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-white mt-2">בוקר בעיר, ערב Aquaworld ❄️</h3>
             <p class="text-sm text-slate-200 mt-2 leading-relaxed">
-              17–22 בנובמבר – קר מאוד. בוקר וצהריים במקומות מקורים (MiniPolis או IKONO – מושלמים לילדות 6–8, מעט הליכה). בערב Aquaworld (מקורה).
+              בוקר וצהריים בעיר (MiniPolis / IKONO או משהו קרוב למלון). בערב נוסעים ל-Aquaworld ונשארים שם עד היום השישי בבוקר.
             </p>
 
             <div class="grid grid-cols-1 gap-3 mt-4">
@@ -543,8 +543,8 @@
         </div>
         <div id="day-panel-5" class="day-panel hidden space-y-6">
           <div class="glass-card rounded-3xl p-5 md:p-8 border border-pink-500/30">
-            <span class="px-3 py-1 bg-pink-500/20 text-pink-300 border border-pink-400/30 rounded-full text-xs font-bold">יום 5 • קניות ב-Arena Mall + מדע</span>
-            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">שופינג ב-Arena Mall ומוזיאון המדע 🛍️🧪</h3>
+            <span class="px-3 py-1 bg-pink-500/20 text-pink-300 border border-pink-400/30 rounded-full text-xs font-bold">יום 5 • באזור Aquaworld</span>
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mt-2">יום באזור Aquaworld 🌊</h3>
             <p class="text-sm md:text-base text-slate-200 mt-2 leading-relaxed">
               בוקר וחצי יום מוקדשים לקניות בקניון הענק **Arena Mall**, ולאחר מכן ביקור חווייתי במוזיאון המדע והאשליות **Palace of Wonders**!
             </p>
