@@ -119,7 +119,14 @@
       .text-xs { font-size: 0.8rem !important; }
       .text-sm { font-size: 0.9rem !important; }
     }
-  </style>
+  
+    details[open] summary i.fa-chevron-down {
+      transform: rotate(180deg);
+    }
+    summary::-webkit-details-marker {
+      display: none;
+    }
+</style>
 </head>
 <body class="font-sans antialiased text-slate-100 overflow-x-hidden pb-12 selection:bg-rose-500 selection:text-white">
 
@@ -255,20 +262,27 @@
       </div>
     </section>
 
-    <!-- SUMMARY: New attractions by day -->
+    <!-- SUMMARY: New attractions by day (collapsible) -->
     <section class="my-6">
-      <div class="glass-card rounded-3xl p-4 md:p-6 border border-sky-500/30">
-        <h2 class="text-lg md:text-xl font-bold text-sky-300 mb-3">📍 סיכום אטרקציות לפי ימים (מקורה/נגיש)</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-amber-300 font-bold">יום 1:</span> מלון BasiliQ + שוק הבזיליקה (ממש ליד) + Cat Café</div>
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-cyan-300 font-bold">יום 2:</span> מוזיאון האשליות + שוק וורוזמארטי + שייט</div>
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-purple-300 font-bold">יום 3:</span> בודה קצר או MiniPolis / Zoo Café</div>
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-emerald-300 font-bold">יום 4:</span> MiniPolis או IKONO (בוקר) + Aquaworld (ערב)</div>
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-pink-300 font-bold">יום 5:</span> Arena Mall + Palace of Wonders</div>
-          <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-rose-300 font-bold">יום 6:</span> מזכרות קלות + יציאה</div>
+      <details class="glass-card rounded-3xl border border-sky-500/30 overflow-hidden">
+        <summary class="p-4 md:p-6 cursor-pointer list-none flex items-center justify-between text-sky-300 font-bold text-lg md:text-xl select-none hover:bg-white/5">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-list-check"></i> 📍 סיכום אטרקציות לפי ימים
+          </span>
+          <i class="fa-solid fa-chevron-down text-sm transition-transform duration-200 details-open:rotate-180"></i>
+        </summary>
+        <div class="p-4 md:p-6 pt-0 border-t border-sky-500/20">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-amber-300 font-bold">יום 1:</span> מלון BasiliQ + שוק הבזיליקה (ממש ליד) + Cat Café</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-cyan-300 font-bold">יום 2:</span> מוזיאון האשליות + שוק וורוזמארטי + שייט</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-purple-300 font-bold">יום 3:</span> בודה קצר או MiniPolis / Zoo Café</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-emerald-300 font-bold">יום 4:</span> MiniPolis או IKONO (בוקר) + Aquaworld (ערב)</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-pink-300 font-bold">יום 5:</span> Arena Mall + Palace of Wonders</div>
+            <div class="bg-slate-900/50 p-3 rounded-xl"><span class="text-rose-300 font-bold">יום 6:</span> מזכרות קלות + יציאה</div>
+          </div>
+          <p class="text-xs text-slate-400 mt-3">כל המיקומים עם קישורי ניווט בתוך כל יום. לחצו על הימים למעלה לפרטים.</p>
         </div>
-        <p class="text-xs text-slate-400 mt-3">כל המיקומים עם קישורי ניווט בתוך כל יום. לחצו על הימים למעלה לפרטים.</p>
-      </div>
+      </details>
     </section>
 
     <!-- SECTION 3: INTERACTIVE MAP OF ALL LOCATIONS -->
